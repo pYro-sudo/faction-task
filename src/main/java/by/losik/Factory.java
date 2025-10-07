@@ -8,7 +8,8 @@ class Factory {
     private final BlockingQueue<PartType> storage = new LinkedBlockingQueue<>();
     private final Random random = new Random();
     private final Semaphore accessSemaphore = new Semaphore(1, true);
-    private boolean isNight = false;
+    private volatile boolean isNight = false;
+    private final Object nightLock = new Object();
     private static final int MAX_DAILY_PRODUCTION = 10;
     public void produceDailyParts() {
         storage.clear();
@@ -30,26 +31,30 @@ class Factory {
     }
 
     public PartType takePart(Faction faction) {
-        try {
-            if (Thread.currentThread().isInterrupted()) {
-                return null;
-            }
+        if (Thread.currentThread().isInterrupted()) {
+            return null;
+        }
 
+        synchronized (nightLock) {
             if (!isNight || storage.isEmpty()) {
                 return null;
             }
+        }
 
-            try {
-                Thread.sleep(random.nextInt(MAX_DAILY_PRODUCTION));
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return null;
-            }
+        try {
+            Thread.sleep(random.nextInt(MAX_DAILY_PRODUCTION));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
+        }
 
-            if (accessSemaphore.tryAcquire(50, TimeUnit.MILLISECONDS)) {
+        try {
+            if (accessSemaphore.tryAcquire(100, TimeUnit.MILLISECONDS)) {
                 try {
-                    if (!isNight || storage.isEmpty()) {
-                        return null;
+                    synchronized (nightLock) {
+                        if (!isNight || storage.isEmpty()) {
+                            return null;
+                        }
                     }
 
                     PartType part = storage.poll();
