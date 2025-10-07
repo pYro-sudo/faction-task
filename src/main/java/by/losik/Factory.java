@@ -11,6 +11,7 @@ class Factory {
     private volatile boolean isNight = false;
     private final Object nightLock = new Object();
     private static final int MAX_DAILY_PRODUCTION = 10;
+    private static final int APPROACH_DELAY = 50;
     public void produceDailyParts() {
         storage.clear();
         int partsToProduce = random.nextInt(MAX_DAILY_PRODUCTION) + 1;
@@ -42,7 +43,7 @@ class Factory {
         }
 
         try {
-            Thread.sleep(random.nextInt(MAX_DAILY_PRODUCTION));
+            Thread.sleep(random.nextInt(APPROACH_DELAY));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return null;
@@ -95,3 +96,4 @@ class Factory {
                 .collect(Collectors.joining(", "));
     }
 }
+
