@@ -25,15 +25,20 @@ public class App {
                 nightStartLatch.countDown();
                 nightEndLatch.await();
                 factory.endNight();
-                worldFuture.get(1, TimeUnit.SECONDS);
-                wednesdayFuture.get(1, TimeUnit.SECONDS);
+                try {
+                    worldFuture.get();
+                    wednesdayFuture.get();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
                 System.out.printf("Daily summary - World: %d robots, Wednesday: %d robots%n",
                         worldFaction.getRobotsCount(), wednesdayFaction.getRobotsCount());
             }
-        } catch (ExecutionException | TimeoutException e) {
-            throw new RuntimeException(e);
         } finally {
             executor.shutdown();
+            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
         }
 
         printFinalResults(worldFaction, wednesdayFaction);
