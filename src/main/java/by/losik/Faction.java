@@ -60,7 +60,7 @@ class Faction implements Runnable {
         int heads = inventory.get(PartType.HEAD).get();
         int torsos = inventory.get(PartType.TORSO).get();
         int hands = inventory.get(PartType.HAND).get() / 2;
-        int feet = inventory.get(PartType.FEET).get();
+        int feet = inventory.get(PartType.FEET).get() / 2;
 
         int maxPossibleRobots = Math.min(Math.min(heads, torsos), Math.min(hands, feet));
 
@@ -68,7 +68,7 @@ class Faction implements Runnable {
             inventory.get(PartType.HEAD).addAndGet(-maxPossibleRobots);
             inventory.get(PartType.TORSO).addAndGet(-maxPossibleRobots);
             inventory.get(PartType.HAND).addAndGet(-maxPossibleRobots * 2);
-            inventory.get(PartType.FEET).addAndGet(-maxPossibleRobots);
+            inventory.get(PartType.FEET).addAndGet(-maxPossibleRobots * 2);
 
             int totalBuilt = robotsBuilt.addAndGet(maxPossibleRobots);
             System.out.printf(">>> %s built %d robot(s)! Total: %d%n",
@@ -89,4 +89,5 @@ class Faction implements Runnable {
                 .map(type -> String.format("%s: %d", type, inventory.get(type).get()))
                 .collect(Collectors.joining(", "));
     }
+
 }
