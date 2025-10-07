@@ -14,6 +14,7 @@ class Faction implements Runnable {
     private CountDownLatch currentNightStartLatch;
     private CountDownLatch currentNightEndLatch;
     private static final int MAX_PARTS_PER_NIGHT = 5;
+    private static final int CARRY_BACK_DELAY = 30;
 
     public Faction(String name) {
         this.name = name;
@@ -38,7 +39,7 @@ class Faction implements Runnable {
                 if (part != null) {
                     inventory.get(part).incrementAndGet();
                     partsTaken++;
-                    Thread.sleep(random.nextInt(30)); //чисто для симуляции
+                    Thread.sleep(random.nextInt(CARRY_BACK_DELAY)); //чисто для симуляции
                 } else {
                     break;
                 }
@@ -91,3 +92,4 @@ class Faction implements Runnable {
     }
 
 }
+
